@@ -56,6 +56,36 @@ docker compose up -d
 
 ```
 
+### 4. Stopping the Container
+Standard Stop (Recommended):
+```bash
+docker compose stop
+
+```
+This "freezes" the container. It keeps the container's internal state but stops the processes and releases the GPU.
+
+Full Shutdown (Cleanest):
+```bash
+docker compose down
+
+```
+
+### 5. Starting it Back Up
+When you want to resume your AI work:
+```bash
+docker compose up -d
+
+```
+The -d flag (detached mode) runs it in the background so you can close your terminal window without killing ComfyUI.
+
+### 6. Checking the Status
+```bash
+docker logs -f comfyui_rtx5080
+
+```
+
+
+
 Access the UI at: **`http://localhost:8188`**
 
 ## 🛠 Project Structure
