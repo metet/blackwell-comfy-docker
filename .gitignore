@@ -1,0 +1,15 @@
+# Ignore local environment variables
+.env
+
+# Ignore ComfyUI persistent data (Volumes)
+# Assuming you keep a copy in the project folder for convenience
+comfy/
+models/
+output/
+input/
+custom_nodes/
+
+# Python/OS junk
+__pycache__/
+.DS_Store
+*.log

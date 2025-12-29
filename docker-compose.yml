@@ -1,0 +1,37 @@
+services:
+  comfyui:
+    environment:
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:128
+    build:
+      context: ./comfyui
+      args:
+        - USER_ID=${USER_ID:-1000}
+        - GROUP_ID=${GROUP_ID:-1000}
+    # This line tells the container to run as YOUR user
+    user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+    container_name: comfyui_rtx5080
+    ports:
+      - "8188:8188"
+    volumes:
+      # ${HOME} points to the home directory of the user running the command 
+      - ${HOME}/comfy/models:/app/ComfyUI/models:rw
+      - ${HOME}/comfy/output:/app/ComfyUI/output:rw
+      - ${HOME}/comfy/input:/app/ComfyUI/input:rw
+      - ${HOME}/comfy/flows:/app/ComfyUI/user/default/workflows:rw
+      - ${HOME}/comfy/custom_nodes:/app/ComfyUI/custom_nodes:rw
+      - ${HOME}/comfy/settings:/app/ComfyUI/user/default:rw
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    shm_size: "2gb"
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8188', timeout=2)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
