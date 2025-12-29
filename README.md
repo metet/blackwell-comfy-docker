@@ -105,3 +105,81 @@ Access the UI at: **`http://localhost:8188`**
 
 ---
 
+Adding a section for volume management is critical because Linux and Windows handle file paths and permissions very differently.
+
+Here is the updated `README.md` section to help users navigate both environments.
+
+---
+
+## 📂 Volume & Path Management
+
+This project uses **Bind Mounts** to link your host folders (where your models and images live) to the container. The syntax in the `docker-compose.yml` varies depending on whether you are on **Ubuntu 24.04** or **Windows 11 (WSL2)**.
+
+### 🐧 On Ubuntu 24.04 (Native)
+
+Ubuntu uses standard Unix paths. The `${HOME}` variable points to your user directory (e.g., `/home/username/`).
+
+**Best Practice:** Use absolute paths with variables or relative paths starting with `./`.
+
+```yaml
+volumes:
+  - ${HOME}/comfy/models:/app/ComfyUI/models:rw
+  - ./local_nodes:/app/ComfyUI/custom_nodes:rw
+
+```
+
+
+
+---
+
+### 🪟 On Windows 11 (Docker Desktop + WSL2)
+
+Windows paths must be converted for Docker to understand them. You have two options:
+
+#### Option A: WSL2 Filesystem (Recommended for Speed)
+
+If you store your project inside your WSL2 distribution (e.g., `\\wsl$\Ubuntu\home\user\comfy`), the syntax is identical to the Ubuntu example above. This is **3-5x faster** for loading large `.safetensors` models.
+
+#### Option B: Windows Host (C: Drive)
+
+If your models are on a Windows drive (e.g., `D:\AI\Models`), use the following format:
+
+```yaml
+volumes:
+  # Use forward slashes even on Windows
+  - D:/AI/Models:/app/ComfyUI/models:rw
+  # OR use the /run/desktop/mnt format
+  - /run/desktop/mnt/host/d/AI/Models:/app/ComfyUI/models:rw
+
+```
+
+### 🔄 Platform Comparison Table
+
+| Feature | Ubuntu 24.04 | Windows 11 (WSL2) |
+| --- | --- | --- |
+| **Path Style** | `/home/user/comfy` | `C:/Users/User/comfy` |
+| **Performance** | Native (Fastest) | Fast (within WSL) / Slower (on C: drive) |
+| **Permissions** | Must match UID 1000 | Automatically handled by Docker Desktop |
+| **Case Sensitivity** | Strict | Case-insensitive (on host) |
+
+---
+
+### 🛠 How to Modify the YAML
+
+If you want to move your models to a secondary SSD:
+
+1. Open `docker-compose.yml`.
+2. Locate the `volumes:` section.
+3. Change the **left side** of the colon (`:`) to your new path.
+4. **Never change the right side**, as ComfyUI expects those specific internal paths.
+
+---
+
+### 🚀 Final Step
+
+After modifying your paths in the YAML, always restart the container to apply the changes:
+
+```bash
+docker compose up -d --force-recreate
+
+```
