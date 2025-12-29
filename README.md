@@ -1,4 +1,4 @@
-This `README.md` is designed to reflect the specific optimizations we've built for your **RTX 5080 (Blackwell)** and the permission-safe **UID 1000** mapping.
+
 
 ---
 
