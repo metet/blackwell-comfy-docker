@@ -35,58 +35,206 @@ Run these commands on your host machine to prepare the persistent storage:
 ```bash
 mkdir -p ~/comfy/{models,output,input,flows,custom_nodes,settings}
 sudo chown -R $USER:$USER ~/comfy
-
 ```
 
 ### 2. Configure Environment
 
-Create a `.env` file in the project root:
+**Option A: Using Makefile (Recommended)**
+```bash
+make env-setup
+# Then edit .env to set your USER_ID and GROUP_ID (run 'id -u' and 'id -g' to find yours)
+nano .env
+```
 
+**Option B: Manual**
+Create a `.env` file in the project root:
 ```ini
 USER_ID=1000
 GROUP_ID=1000
-
 ```
 
 ### 3. Build and Launch
 
+**Option A: Using Makefile (Recommended)**
+```bash
+make build
+make start
+```
+
+**Option B: Manual**
 ```bash
 docker compose build --no-cache
 docker compose up -d
-
 ```
 
 ### 4. Stopping the Container
-Standard Stop (Recommended):
+
+**Option A: Using Makefile (Recommended)**
 ```bash
-docker compose stop
-
+make stop   # Standard stop (freezes container)
+make clean  # Full shutdown (removes container)
 ```
-This "freezes" the container. It keeps the container's internal state but stops the processes and releases the GPU.
 
-Full Shutdown (Cleanest):
+**Option B: Manual**
 ```bash
-docker compose down
-
+docker compose stop  # Standard stop
+docker compose down  # Full shutdown
 ```
+
+The standard stop "freezes" the container. It keeps the container's internal state but stops the processes and releases the GPU.
 
 ### 5. Starting it Back Up
-When you want to resume your AI work:
+
+**Option A: Using Makefile (Recommended)**
+```bash
+make start
+```
+
+**Option B: Manual**
 ```bash
 docker compose up -d
-
 ```
+
 The -d flag (detached mode) runs it in the background so you can close your terminal window without killing ComfyUI.
 
 ### 6. Checking the Status
+
+**Option A: Using Makefile (Recommended)**
+```bash
+make logs-follow  # Follow logs in real-time
+make status       # Show container status
+make health       # Check if ComfyUI is responding
+```
+
+**Option B: Manual**
 ```bash
 docker logs -f comfyui_rtx5080
-
+docker compose ps
 ```
 
 
 
 Access the UI at: **`http://localhost:8188`**
+
+## 🔧 Using the Makefile (Recommended)
+
+This project includes a **Makefile** that simplifies common Docker operations. Instead of typing long `docker-compose` commands, you can use short, memorable commands.
+
+### Quick Reference
+
+Run `make help` to see all available commands:
+
+```bash
+make help
+```
+
+### Essential Commands
+
+| Command | Description |
+|---------|-------------|
+| `make env-setup` | Create .env file from .env.example |
+| `make build` | Build the Docker image |
+| `make start` | Start ComfyUI container |
+| `make stop` | Stop ComfyUI container |
+| `make restart` | Restart ComfyUI container |
+| `make logs` | Show last 100 lines of logs |
+| `make logs-follow` | Follow logs in real-time |
+| `make status` | Show container status |
+| `make shell` | Open bash shell in container |
+| `make health` | Check if ComfyUI is responding |
+| `make clean` | Stop and remove container (keeps data) |
+
+### Recommended Workflow with Makefile
+
+1. **Initial Setup:**
+```bash
+# Create environment file
+make env-setup
+
+# Edit .env to set your USER_ID and GROUP_ID
+nano .env  # or use your preferred editor
+
+# Build the image
+make build
+
+# Start ComfyUI
+make start
+```
+
+2. **Daily Usage:**
+```bash
+# Start ComfyUI
+make start
+
+# Check logs if needed
+make logs-follow
+
+# Stop when done
+make stop
+```
+
+3. **Troubleshooting:**
+```bash
+# Check if container is running
+make status
+
+# Check if ComfyUI is responding
+make health
+
+# View recent logs
+make logs
+
+# Open shell to investigate
+make shell
+```
+
+4. **Maintenance:**
+```bash
+# Update to latest version
+make update
+
+# Backup your data
+make backup
+
+# Check system requirements
+make check-prereqs
+```
+
+### Advanced Commands
+
+| Command | Description |
+|---------|-------------|
+| `make build-no-cache` | Rebuild without cache (for troubleshooting) |
+| `make shell-root` | Open root shell (for system debugging) |
+| `make info` | Show system and GPU information |
+| `make test` | Run basic health tests |
+| `make backup` | Create timestamped backup of ~/comfy/ |
+| `make prune` | Clean up unused Docker resources |
+| `make clean-all` | ⚠️ Remove everything including data volumes |
+
+### Why Use the Makefile?
+
+**Before (manual):**
+```bash
+docker-compose build --progress=plain
+docker-compose up -d
+docker-compose logs -f
+docker-compose exec comfyui /bin/bash
+```
+
+**After (with Makefile):**
+```bash
+make build
+make start
+make logs-follow
+make shell
+```
+
+✅ Shorter commands
+✅ Easier to remember
+✅ Color-coded output
+✅ Built-in safety checks
+✅ Helpful error messages
 
 ## 🛠 Project Structure
 
